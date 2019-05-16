@@ -27,9 +27,9 @@ func (s *Server) routeNotFound(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("route not found"))
 }
 
-// Signin route wrapper
-func (s *Server) Signin(w http.ResponseWriter, r *http.Request) {
-	auth.Signin(s.DB, w, r)
+// Login route wrapper
+func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
+	auth.Login(s.DB, w, r)
 }
 
 // Register route wrapper

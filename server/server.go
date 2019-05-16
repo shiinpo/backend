@@ -31,7 +31,7 @@ func (s *Server) setRouter() {
 	s.Router.Use(s.loggingMiddleware)
 
 	s.Router.HandleFunc("/", s.getServerIsUp).Methods("GET")
-	s.Router.HandleFunc("/signin", s.Signin).Methods("POST")
+	s.Router.HandleFunc("/login", s.Login).Methods("POST")
 	s.Router.HandleFunc("/register", s.Register).Methods("POST")
 	s.Router.NotFoundHandler = http.HandlerFunc(s.routeNotFound)
 }

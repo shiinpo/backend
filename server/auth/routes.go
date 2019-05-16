@@ -10,8 +10,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Signin the Signin handler
-func Signin(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+// Login the login handler
+func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	var creds models.Credentials
 	// Get the JSON body and decode into credentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
