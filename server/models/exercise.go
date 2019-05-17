@@ -17,12 +17,13 @@ type Exercise struct {
 
 // Entry is the DB response struct from user_entry table
 type Entry struct {
-	ID         int `json:"id"`
-	Sets       int `json:"sets"`
-	Reps       int `json:"reps"`
-	RPE        int `json:"rpe"`
-	ExerciseID int `json:"exercise_id"`
-	UserID     int `json:"user_id"`
+	ID            int    `json:"id"`
+	Weight        int    `json:"weight"`
+	Reps          int    `json:"reps"`
+	RPE           int    `json:"rpe"`
+	DatePerformed string `json:"date_performed"`
+	ExerciseID    int    `json:"exercise_id"`
+	UserID        int    `json:"user_id"`
 }
 
 //////////////////
@@ -197,8 +198,115 @@ func DeleteExercise(db *sql.DB, id int) (int, error) {
 //////////////////
 ////   ENTRY  ////
 //////////////////
-// GetAllEntry gets all user entry by user ID
+
+// GetAllEntries gets all user entry by user ID
+func GetAllEntries(db *sql.DB, id int) ([]Entry, error) {
+	rows, err := db.Query(`SELECT * FROM user_entry WHERE user_id = $1`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	var entries []Entry
+	for rows.Next() {
+		var entry Entry
+		err := rows.Scan(
+			&entry.ID,
+			&entry.Weight,
+			&entry.Reps,
+			&entry.RPE,
+			&entry.DatePerformed,
+			&entry.ExerciseID,
+			&entry.UserID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		entries = append(entries, entry)
+	}
+
+	return entries, nil
+}
+
 // GetEntry gets entry by ID
+func GetEntry(db *sql.DB, id int) (Entry, error) {
+	var entry Entry
+	err := db.QueryRow(`SELECT * FROM entry WHERE id = ($1)`, id).Scan(
+		&entry.ID,
+		&entry.Weight,
+		&entry.Reps,
+		&entry.RPE,
+		&entry.DatePerformed,
+		&entry.ExerciseID,
+		&entry.UserID,
+	)
+
+	if err != nil {
+		return entry, err
+	}
+
+	return entry, nil
+}
+
 // CreateEntry creates new entry
+func CreateEntry(db *sql.DB, e Entry) (Entry, error) {
+	var entry Entry
+	err := db.QueryRow(`
+		INSERT INTO user_entry(weight, reps, rpe, date_performed, exercise_id, user_id)
+		VALUES
+		($1, $2, $3, $4, $5, $6)
+		RETURNING *`,
+		e.Weight, e.Reps, e.RPE, e.DatePerformed, e.ExerciseID, e.UserID,
+	).Scan(
+		&entry.ID,
+		&entry.Weight,
+		&entry.Reps,
+		&entry.RPE,
+		&entry.DatePerformed,
+		&entry.ExerciseID,
+		&entry.UserID,
+	)
+
+	if err != nil {
+		return entry, err
+	}
+
+	return entry, nil
+}
+
 // EditEntry edits entry by entry ID
-// DelteEntry deletes entry by ID
+func EditEntry(db *sql.DB, e Entry) (Entry, error) {
+	var entry Entry
+	err := db.QueryRow(`UPDATE user_entry
+		SET weight = $1, reps = $2, rpe = $3, date_performed = $4, exercise_id = $5, user_id = $6
+		WHERE id = $7
+		RETURNING *`,
+		e.Weight, e.Reps, e.RPE, e.DatePerformed, e.ExerciseID, e.UserID,
+	).Scan(
+		&entry.ID,
+		&entry.Weight,
+		&entry.Reps,
+		&entry.RPE,
+		&entry.DatePerformed,
+		&entry.ExerciseID,
+		&entry.UserID,
+	)
+
+	if err != nil {
+		return entry, err
+	}
+
+	return entry, nil
+}
+
+// DeleteEntry deletes entry by ID
+func DeleteEntry(db *sql.DB, id int) (int, error) {
+	var count = 0
+	rows, err := db.Query(`DELETE FROM user_entry WHERE id = $1 RETURNING *`, id)
+	if err != nil {
+		return 0, err
+	}
+	for rows.Next() {
+		count++
+	}
+	return count, nil
+}

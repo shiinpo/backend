@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS user_entry (
   id                serial          PRIMARY KEY,
-  sets              INTEGER         NOT NULL,
+  weight            INTEGER         NOT NULL,
   reps              INTEGER         NOT NULL,
   rpe               INTEGER         NOT NULL,
   date_performed    DATE            NOT NULL,
