@@ -68,7 +68,7 @@ func CreateCategory(db *sql.DB, name string) (Category, error) {
 	var category Category
 	err := db.QueryRow(`INSERT INTO category(name)
 		VALUES
-		($1)
+		(UPPER($1))
 		RETURNING id, name`, name).Scan(&category.ID, &category.Name)
 
 	if err != nil {
