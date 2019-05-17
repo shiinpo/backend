@@ -18,6 +18,12 @@ var categories = []string{
 	"cardio",
 }
 
+var exercises = map[string]int{
+	"squat":    4,
+	"bench":    1,
+	"deadlift": 2,
+}
+
 // RunMigrations runs migrations on database
 func RunMigrations(db *sql.DB) {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
@@ -30,9 +36,9 @@ func RunMigrations(db *sql.DB) {
 		log.Fatal(err)
 	}
 
-	// if err := m.Down(); err != nil && err != migrate.ErrNoChange {
-	// 	log.Fatal(err)
-	// }
+	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
+	}
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
 	}
@@ -42,6 +48,7 @@ func RunMigrations(db *sql.DB) {
 func RunDBSeeds(db *sql.DB) {
 	userSeeds(db)
 	categorySeeds(db)
+	exerciseSeed(db)
 }
 
 // userSeeds seeds default user
@@ -66,6 +73,18 @@ func categorySeeds(db *sql.DB) {
 			fmt.Println(err)
 		} else {
 			fmt.Printf("CREATED CATEGORY ID:%d, NAME:%s\n", cat.ID, cat.Name)
+		}
+	}
+}
+
+// exerciseSeed seeds default exercises
+func exerciseSeed(db *sql.DB) {
+	for exercise, categoryID := range exercises {
+		exer, err := CreateExercise(db, exercise, categoryID)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("CREATED EXERCISE ID:%d, NAME:%s\n", exer.ID, exer.Name)
 		}
 	}
 }
