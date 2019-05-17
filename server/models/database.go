@@ -64,17 +64,10 @@ func RunMigrations(db *sql.DB) {
 
 // RunDBSeeds migrates and seeds databse with JSON file from scraper
 func RunDBSeeds(db *sql.DB) {
-	// userSeeds(db)
-	// categorySeeds(db)
-	// exerciseSeeds(db)
-	// userEntrySeeds(db)
-
-	entries, err := GetAllEntries(db, 1)
-	if err != nil {
-		fmt.Print(err)
-	} else {
-		fmt.Printf("%d\n", len(entries))
-	}
+	userSeeds(db)
+	categorySeeds(db)
+	exerciseSeeds(db)
+	userEntrySeeds(db)
 }
 
 // userSeeds seeds default user
