@@ -24,6 +24,24 @@ var exercises = map[string]int{
 	"deadlift": 2,
 }
 
+var userEntries = []Entry{
+	{ID: 0, Weight: 225, Reps: 10, RPE: 10, DatePerformed: "2019/05/28", ExerciseID: 2, UserID: 1},
+	{ID: 0, Weight: 235, Reps: 10, RPE: 10, DatePerformed: "2019/05/29", ExerciseID: 2, UserID: 1},
+	{ID: 0, Weight: 215, Reps: 10, RPE: 10, DatePerformed: "2019/05/30", ExerciseID: 2, UserID: 1},
+	{ID: 0, Weight: 255, Reps: 10, RPE: 10, DatePerformed: "2019/05/31", ExerciseID: 2, UserID: 1},
+	{ID: 0, Weight: 265, Reps: 10, RPE: 10, DatePerformed: "2019/06/01", ExerciseID: 2, UserID: 1},
+	{ID: 0, Weight: 325, Reps: 10, RPE: 10, DatePerformed: "2019/05/28", ExerciseID: 1, UserID: 1},
+	{ID: 0, Weight: 335, Reps: 10, RPE: 10, DatePerformed: "2019/05/29", ExerciseID: 1, UserID: 1},
+	{ID: 0, Weight: 315, Reps: 10, RPE: 10, DatePerformed: "2019/05/30", ExerciseID: 1, UserID: 1},
+	{ID: 0, Weight: 355, Reps: 10, RPE: 10, DatePerformed: "2019/05/31", ExerciseID: 1, UserID: 1},
+	{ID: 0, Weight: 365, Reps: 10, RPE: 10, DatePerformed: "2019/06/01", ExerciseID: 1, UserID: 1},
+	{ID: 0, Weight: 425, Reps: 10, RPE: 10, DatePerformed: "2019/05/28", ExerciseID: 3, UserID: 1},
+	{ID: 0, Weight: 435, Reps: 10, RPE: 10, DatePerformed: "2019/05/29", ExerciseID: 3, UserID: 1},
+	{ID: 0, Weight: 415, Reps: 10, RPE: 10, DatePerformed: "2019/05/30", ExerciseID: 3, UserID: 1},
+	{ID: 0, Weight: 455, Reps: 10, RPE: 10, DatePerformed: "2019/05/31", ExerciseID: 3, UserID: 1},
+	{ID: 0, Weight: 465, Reps: 10, RPE: 10, DatePerformed: "2019/06/01", ExerciseID: 3, UserID: 1},
+}
+
 // RunMigrations runs migrations on database
 func RunMigrations(db *sql.DB) {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
@@ -46,9 +64,17 @@ func RunMigrations(db *sql.DB) {
 
 // RunDBSeeds migrates and seeds databse with JSON file from scraper
 func RunDBSeeds(db *sql.DB) {
-	userSeeds(db)
-	categorySeeds(db)
-	exerciseSeed(db)
+	// userSeeds(db)
+	// categorySeeds(db)
+	// exerciseSeeds(db)
+	// userEntrySeeds(db)
+
+	entries, err := GetAllEntries(db, 1)
+	if err != nil {
+		fmt.Print(err)
+	} else {
+		fmt.Printf("%d\n", len(entries))
+	}
 }
 
 // userSeeds seeds default user
@@ -77,14 +103,26 @@ func categorySeeds(db *sql.DB) {
 	}
 }
 
-// exerciseSeed seeds default exercises
-func exerciseSeed(db *sql.DB) {
+// exerciseSeeds seeds default exercises
+func exerciseSeeds(db *sql.DB) {
 	for exercise, categoryID := range exercises {
 		exer, err := CreateExercise(db, exercise, categoryID)
 		if err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Printf("CREATED EXERCISE ID:%d, NAME:%s\n", exer.ID, exer.Name)
+		}
+	}
+}
+
+// userEntrySeeds seeds default user entries
+func userEntrySeeds(db *sql.DB) {
+	for _, entry := range userEntries {
+		ent, err := CreateEntry(db, entry)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("CREATED ENTRY ID:%d\n", ent.ID)
 		}
 	}
 }
