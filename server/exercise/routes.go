@@ -13,7 +13,7 @@ import (
 // GetUserRecords the user Records handler
 func GetUserRecords(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	id := r.Context().Value("ID").(int)
-	records, err := models.GetAllEntries(db, id)
+	records, err := models.GetAllRecords(db, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -24,15 +24,15 @@ func GetUserRecords(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 // AddUserRecord the add new user record handler
 func AddUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("ID").(int)
-	var payload models.Entry
+	var payload models.Record
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	record, err := models.CreateEntry(
+	record, err := models.CreateRecord(
 		db,
-		models.Entry{
+		models.Record{
 			ID:            0,
 			Weight:        payload.Weight,
 			Reps:          payload.Reps,
@@ -53,7 +53,7 @@ func AddUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 // EditUserRecord the edit record handler
 func EditUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("ID").(int)
-	var payload models.Entry
+	var payload models.Record
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -90,7 +90,7 @@ func EditUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	record, err := models.EditEntry(db, userID, payload)
+	record, err := models.EditRecord(db, userID, payload)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -113,7 +113,7 @@ func DeleteUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, err := models.DeleteEntry(db, userID, id)
+	count, err := models.DeleteRecord(db, userID, id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
