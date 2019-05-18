@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS user_entry (
+CREATE TABLE IF NOT EXISTS user_records (
   id                serial          PRIMARY KEY,
   weight            INTEGER         NOT NULL,
   reps              INTEGER         NOT NULL,

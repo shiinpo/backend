@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/reynld/shinpo/server/auth"
+	"github.com/reynld/shinpo/server/exercise"
 )
 
 // loggingMiddleware logs HTTP request
@@ -35,4 +36,28 @@ func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 // Register route wrapper
 func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	auth.Register(s.DB, w, r)
+}
+
+//////////////////
+////  RECORD  ////
+//////////////////
+
+// GetUserRecords route wrapper
+func (s *Server) GetUserRecords(w http.ResponseWriter, r *http.Request) {
+	exercise.GetUserRecords(s.DB, w, r)
+}
+
+// AddUserRecord route wrapper
+func (s *Server) AddUserRecord(w http.ResponseWriter, r *http.Request) {
+	exercise.AddUserRecord(s.DB, w, r)
+}
+
+// EditUserRecord route wrapper
+func (s *Server) EditUserRecord(w http.ResponseWriter, r *http.Request) {
+	exercise.EditUserRecord(s.DB, w, r)
+}
+
+// DeleteUserRecord route wrapper
+func (s *Server) DeleteUserRecord(w http.ResponseWriter, r *http.Request) {
+	exercise.DeleteUserRecord(s.DB, w, r)
 }

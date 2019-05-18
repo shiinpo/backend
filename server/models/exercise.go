@@ -15,8 +15,8 @@ type Exercise struct {
 	CategoryID int    `json:"category_id"`
 }
 
-// Entry is the DB response struct from user_entry table
-type Entry struct {
+// Record is the DB response struct from user_records table
+type Record struct {
 	ID            int    `json:"id"`
 	Weight        int    `json:"weight"`
 	Reps          int    `json:"reps"`
@@ -196,112 +196,112 @@ func DeleteExercise(db *sql.DB, id int) (int, error) {
 }
 
 //////////////////
-////   ENTRY  ////
+////  RECORDS ////
 //////////////////
 
-// GetAllEntries gets all user entry by user ID
-func GetAllEntries(db *sql.DB, id int) ([]Entry, error) {
-	rows, err := db.Query(`SELECT * FROM user_entry WHERE user_id = $1`, id)
+// GetAllRecords gets all user record by user ID
+func GetAllRecords(db *sql.DB, id int) ([]Record, error) {
+	rows, err := db.Query(`SELECT * FROM user_records WHERE user_id = $1`, id)
 	if err != nil {
 		return nil, err
 	}
 
-	var entries []Entry
+	var records []Record
 	for rows.Next() {
-		var entry Entry
+		var record Record
 		err := rows.Scan(
-			&entry.ID,
-			&entry.Weight,
-			&entry.Reps,
-			&entry.RPE,
-			&entry.DatePerformed,
-			&entry.ExerciseID,
-			&entry.UserID,
+			&record.ID,
+			&record.Weight,
+			&record.Reps,
+			&record.RPE,
+			&record.DatePerformed,
+			&record.ExerciseID,
+			&record.UserID,
 		)
 		if err != nil {
 			return nil, err
 		}
-		entries = append(entries, entry)
+		records = append(records, record)
 	}
 
-	return entries, nil
+	return records, nil
 }
 
-// GetEntry gets entry by ID
-func GetEntry(db *sql.DB, id int) (Entry, error) {
-	var entry Entry
-	err := db.QueryRow(`SELECT * FROM entry WHERE id = ($1)`, id).Scan(
-		&entry.ID,
-		&entry.Weight,
-		&entry.Reps,
-		&entry.RPE,
-		&entry.DatePerformed,
-		&entry.ExerciseID,
-		&entry.UserID,
+// GetRecord gets record by ID
+func GetRecord(db *sql.DB, id int) (Record, error) {
+	var record Record
+	err := db.QueryRow(`SELECT * FROM user_records WHERE id = ($1)`, id).Scan(
+		&record.ID,
+		&record.Weight,
+		&record.Reps,
+		&record.RPE,
+		&record.DatePerformed,
+		&record.ExerciseID,
+		&record.UserID,
 	)
 
 	if err != nil {
-		return entry, err
+		return record, err
 	}
 
-	return entry, nil
+	return record, nil
 }
 
-// CreateEntry creates new entry
-func CreateEntry(db *sql.DB, e Entry) (Entry, error) {
-	var entry Entry
+// CreateRecord creates new record
+func CreateRecord(db *sql.DB, e Record) (Record, error) {
+	var record Record
 	err := db.QueryRow(`
-		INSERT INTO user_entry(weight, reps, rpe, date_performed, exercise_id, user_id)
+		INSERT INTO user_records(weight, reps, rpe, date_performed, exercise_id, user_id)
 		VALUES
 		($1, $2, $3, $4, $5, $6)
 		RETURNING *`,
 		e.Weight, e.Reps, e.RPE, e.DatePerformed, e.ExerciseID, e.UserID,
 	).Scan(
-		&entry.ID,
-		&entry.Weight,
-		&entry.Reps,
-		&entry.RPE,
-		&entry.DatePerformed,
-		&entry.ExerciseID,
-		&entry.UserID,
+		&record.ID,
+		&record.Weight,
+		&record.Reps,
+		&record.RPE,
+		&record.DatePerformed,
+		&record.ExerciseID,
+		&record.UserID,
 	)
 
 	if err != nil {
-		return entry, err
+		return record, err
 	}
 
-	return entry, nil
+	return record, nil
 }
 
-// EditEntry edits entry by entry ID
-func EditEntry(db *sql.DB, e Entry) (Entry, error) {
-	var entry Entry
-	err := db.QueryRow(`UPDATE user_entry
-		SET weight = $1, reps = $2, rpe = $3, date_performed = $4, exercise_id = $5, user_id = $6
-		WHERE id = $7
+// EditRecord edits record by record ID
+func EditRecord(db *sql.DB, id int, e Record) (Record, error) {
+	var record Record
+	err := db.QueryRow(`UPDATE user_records
+		SET weight = $1, reps = $2, rpe = $3
+		WHERE id = $4
 		RETURNING *`,
-		e.Weight, e.Reps, e.RPE, e.DatePerformed, e.ExerciseID, e.UserID,
+		e.Weight, e.Reps, e.RPE, id,
 	).Scan(
-		&entry.ID,
-		&entry.Weight,
-		&entry.Reps,
-		&entry.RPE,
-		&entry.DatePerformed,
-		&entry.ExerciseID,
-		&entry.UserID,
+		&record.ID,
+		&record.Weight,
+		&record.Reps,
+		&record.RPE,
+		&record.DatePerformed,
+		&record.ExerciseID,
+		&record.UserID,
 	)
 
 	if err != nil {
-		return entry, err
+		return record, err
 	}
 
-	return entry, nil
+	return record, nil
 }
 
-// DeleteEntry deletes entry by ID
-func DeleteEntry(db *sql.DB, id int) (int, error) {
+// DeleteRecord deletes record by ID
+func DeleteRecord(db *sql.DB, userID int, id int) (int, error) {
 	var count = 0
-	rows, err := db.Query(`DELETE FROM user_entry WHERE id = $1 RETURNING *`, id)
+	rows, err := db.Query(`DELETE FROM user_records WHERE id = $1 AND user_id = $2 RETURNING *`, id, userID)
 	if err != nil {
 		return 0, err
 	}

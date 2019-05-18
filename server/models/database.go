@@ -24,7 +24,7 @@ var exercises = map[string]int{
 	"deadlift": 2,
 }
 
-var userEntries = []Entry{
+var userEntries = []Record{
 	{ID: 0, Weight: 225, Reps: 10, RPE: 10, DatePerformed: "2019/05/28", ExerciseID: 2, UserID: 1},
 	{ID: 0, Weight: 235, Reps: 10, RPE: 10, DatePerformed: "2019/05/29", ExerciseID: 2, UserID: 1},
 	{ID: 0, Weight: 215, Reps: 10, RPE: 10, DatePerformed: "2019/05/30", ExerciseID: 2, UserID: 1},
@@ -80,7 +80,7 @@ func userSeeds(db *sql.DB) {
 	var id int
 	err = CreateUser(db, &id, "rey", string(hash))
 	if err != nil {
-		log.Fatal("error seeding user")
+		log.Fatal("error seeding user:" + err.Error())
 	}
 }
 
@@ -111,7 +111,7 @@ func exerciseSeeds(db *sql.DB) {
 // userEntrySeeds seeds default user entries
 func userEntrySeeds(db *sql.DB) {
 	for _, entry := range userEntries {
-		ent, err := CreateEntry(db, entry)
+		ent, err := CreateRecord(db, entry)
 		if err != nil {
 			fmt.Println(err)
 		} else {
