@@ -44,10 +44,12 @@ func Protected(next http.HandlerFunc) http.HandlerFunc {
 		tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
 			return getJWTKey(), nil
 		})
+
 		if !tkn.Valid {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
+
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -58,8 +60,8 @@ func Protected(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, string("username"), claims.Username)
-		ctx = context.WithValue(ctx, string("id"), claims.ID)
+		ctx = context.WithValue(ctx, "Username", claims.Username)
+		ctx = context.WithValue(ctx, "ID", claims.ID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
