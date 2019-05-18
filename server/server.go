@@ -10,6 +10,7 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/reynld/shinpo/server/auth"
 )
 
 // Server has db, router and cache instances
@@ -30,9 +31,17 @@ func (s *Server) setRouter() {
 	s.Router = mux.NewRouter()
 	s.Router.Use(s.loggingMiddleware)
 
+	// Auth + Default Endpoints
 	s.Router.HandleFunc("/", s.getServerIsUp).Methods("GET")
 	s.Router.HandleFunc("/login", s.Login).Methods("POST")
 	s.Router.HandleFunc("/register", s.Register).Methods("POST")
+
+	// User Record Endpoints
+	s.Router.HandleFunc("/record/all", auth.Protected(s.GetUserRecords)).Methods("GET")
+	s.Router.HandleFunc("/record/add", auth.Protected(s.AddUserRecord)).Methods("POST")
+	s.Router.HandleFunc("/record/edit", auth.Protected(s.EditUserRecord)).Methods("PUT")
+	s.Router.HandleFunc("/record/delete/{id}", auth.Protected(s.DeleteUserRecord)).Methods("DELETE")
+
 	s.Router.NotFoundHandler = http.HandlerFunc(s.routeNotFound)
 }
 
