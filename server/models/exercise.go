@@ -274,13 +274,13 @@ func CreateEntry(db *sql.DB, e Entry) (Entry, error) {
 }
 
 // EditEntry edits entry by entry ID
-func EditEntry(db *sql.DB, e Entry) (Entry, error) {
+func EditEntry(db *sql.DB, id int, e Entry) (Entry, error) {
 	var entry Entry
 	err := db.QueryRow(`UPDATE user_entry
-		SET weight = $1, reps = $2, rpe = $3, date_performed = $4, exercise_id = $5, user_id = $6
-		WHERE id = $7
+		SET weight = $1, reps = $2, rpe = $3
+		WHERE id = $4
 		RETURNING *`,
-		e.Weight, e.Reps, e.RPE, e.DatePerformed, e.ExerciseID, e.UserID,
+		e.Weight, e.Reps, e.RPE, id,
 	).Scan(
 		&entry.ID,
 		&entry.Weight,
@@ -299,9 +299,9 @@ func EditEntry(db *sql.DB, e Entry) (Entry, error) {
 }
 
 // DeleteEntry deletes entry by ID
-func DeleteEntry(db *sql.DB, id int) (int, error) {
+func DeleteEntry(db *sql.DB, userID int, id int) (int, error) {
 	var count = 0
-	rows, err := db.Query(`DELETE FROM user_entry WHERE id = $1 RETURNING *`, id)
+	rows, err := db.Query(`DELETE FROM user_entry WHERE id = $1 AND user_id = $2 RETURNING *`, id, userID)
 	if err != nil {
 		return 0, err
 	}
