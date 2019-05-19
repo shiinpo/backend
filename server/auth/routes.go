@@ -18,26 +18,35 @@ func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// If the structure of the body is wrong, return an HTTP error
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
-	var user models.User
-	err = models.GetByUsername(db, &user, creds.Username)
+	user, err := models.GetByUsername(db, creds.Username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(creds.Password))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
-	jwtToken, err := GenerateToken(user.Username, user.ID)
+	userRes := models.UserResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}
+
+	jwtToken, err := GenerateToken(&userRes)
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
@@ -48,6 +57,7 @@ func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		Value:   jwtToken.Token,
 		Expires: jwtToken.Time,
 	})
+	json.NewEncoder(w).Encode(userRes)
 }
 
 // Register the Signin handler
@@ -69,15 +79,14 @@ func Register(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var id int
-	err = models.CreateUser(db, &id, creds.Username, string(hash))
+	user, err := models.CreateUser(db, creds.Username, string(hash), creds.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Print(err)
 		return
 	}
 
-	jwtToken, err := GenerateToken(creds.Username, id)
+	jwtToken, err := GenerateToken(&user)
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
 		w.WriteHeader(http.StatusInternalServerError)
@@ -92,4 +101,5 @@ func Register(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		Value:   jwtToken.Token,
 		Expires: jwtToken.Time,
 	})
+	json.NewEncoder(w).Encode(user)
 }

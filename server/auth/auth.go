@@ -68,14 +68,15 @@ func Protected(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // GenerateToken creates JWT
-func GenerateToken(username string, id int) (models.JWTResponse, error) {
+func GenerateToken(u *models.UserResponse) (models.JWTResponse, error) {
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().Add(5 * time.Hour)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &models.Claims{
-		Username: username,
-		ID:       id,
+		Username: u.Username,
+		ID:       u.ID,
+		Email:    u.Email,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
