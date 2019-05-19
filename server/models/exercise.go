@@ -84,12 +84,12 @@ func CreateCategory(db *sql.DB, name string) (Category, error) {
 }
 
 // EditCategory edits category by ID
-func EditCategory(db *sql.DB, name string, id int) (Category, error) {
+func EditCategory(db *sql.DB, c Category) (Category, error) {
 	var category Category
 	err := db.QueryRow(`UPDATE category
 		SET name = UPPER($1)
 		WHERE id = $2
-		RETURNING id, name`, name, id).Scan(&category.ID, &category.Name)
+		RETURNING id, name`, c.Name, c.ID).Scan(&category.ID, &category.Name)
 
 	if err != nil {
 		return category, err

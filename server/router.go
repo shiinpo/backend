@@ -85,3 +85,27 @@ func (s *Server) EditExercise(w http.ResponseWriter, r *http.Request) {
 func (s *Server) DeleteExercise(w http.ResponseWriter, r *http.Request) {
 	exercise.DeleteExercise(s.DB, w, r)
 }
+
+//////////////////
+//// Category ////
+//////////////////
+
+// GetAllCategories route wrapper
+func (s *Server) GetAllCategories(w http.ResponseWriter, r *http.Request) {
+	exercise.GetAllCategories(s.DB, w, r)
+}
+
+// AddCategory route wrapper
+func (s *Server) AddCategory(w http.ResponseWriter, r *http.Request) {
+	exercise.AddCategory(s.DB, w, r)
+}
+
+// EditCategory route wrapper
+func (s *Server) EditCategory(w http.ResponseWriter, r *http.Request) {
+	exercise.EditCategory(s.DB, w, r)
+}
+
+// DeleteCategory route wrapper
+func (s *Server) DeleteCategory(w http.ResponseWriter, r *http.Request) {
+	exercise.DeleteCategory(s.DB, w, r)
+}
