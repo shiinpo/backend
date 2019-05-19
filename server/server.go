@@ -42,6 +42,12 @@ func (s *Server) setRouter() {
 	s.Router.HandleFunc("/record/edit", auth.Protected(s.EditUserRecord)).Methods("PUT")
 	s.Router.HandleFunc("/record/delete/{id}", auth.Protected(s.DeleteUserRecord)).Methods("DELETE")
 
+	// Exercise Endpoints
+	s.Router.HandleFunc("/exercise/all", auth.Protected(s.GetAllExercises)).Methods("GET")
+	s.Router.HandleFunc("/exercise/add", auth.Protected(s.AddExercise)).Methods("POST")
+	s.Router.HandleFunc("/exercise/edit", auth.Protected(s.EditExercise)).Methods("PUT")
+	s.Router.HandleFunc("/exercise/delete/{id}", auth.Protected(s.DeleteExercise)).Methods("DELETE")
+
 	s.Router.NotFoundHandler = http.HandlerFunc(s.routeNotFound)
 }
 

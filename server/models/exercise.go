@@ -87,7 +87,7 @@ func CreateCategory(db *sql.DB, name string) (Category, error) {
 func EditCategory(db *sql.DB, name string, id int) (Category, error) {
 	var category Category
 	err := db.QueryRow(`UPDATE category
-		SET name = $1
+		SET name = UPPER($1)
 		WHERE id = $2
 		RETURNING id, name`, name, id).Scan(&category.ID, &category.Name)
 
@@ -171,7 +171,7 @@ func CreateExercise(db *sql.DB, name string, categoryID int) (Exercise, error) {
 func EditExercise(db *sql.DB, e Exercise) (Exercise, error) {
 	var exercise Exercise
 	err := db.QueryRow(`UPDATE exercise
-		SET name = $1, category_id = $2
+		SET name = UPPER($1), category_id = $2
 		WHERE id = $3
 		RETURNING id, name, category_id`, e.Name, e.CategoryID, e.ID).Scan(&exercise.ID, &exercise.Name, &exercise.CategoryID)
 

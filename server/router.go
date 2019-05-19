@@ -61,3 +61,27 @@ func (s *Server) EditUserRecord(w http.ResponseWriter, r *http.Request) {
 func (s *Server) DeleteUserRecord(w http.ResponseWriter, r *http.Request) {
 	exercise.DeleteUserRecord(s.DB, w, r)
 }
+
+//////////////////
+//// Exercise ////
+//////////////////
+
+// GetAllExercises route wrapper
+func (s *Server) GetAllExercises(w http.ResponseWriter, r *http.Request) {
+	exercise.GetAllExercises(s.DB, w, r)
+}
+
+// AddExercise route wrapper
+func (s *Server) AddExercise(w http.ResponseWriter, r *http.Request) {
+	exercise.AddExercise(s.DB, w, r)
+}
+
+// EditExercise route wrapper
+func (s *Server) EditExercise(w http.ResponseWriter, r *http.Request) {
+	exercise.EditExercise(s.DB, w, r)
+}
+
+// DeleteExercise route wrapper
+func (s *Server) DeleteExercise(w http.ResponseWriter, r *http.Request) {
+	exercise.DeleteExercise(s.DB, w, r)
+}
