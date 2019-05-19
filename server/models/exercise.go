@@ -274,13 +274,13 @@ func CreateRecord(db *sql.DB, e Record) (Record, error) {
 }
 
 // EditRecord edits record by record ID
-func EditRecord(db *sql.DB, id int, e Record) (Record, error) {
+func EditRecord(db *sql.DB, userID int, e Record) (Record, error) {
 	var record Record
 	err := db.QueryRow(`UPDATE user_records
 		SET weight = $1, reps = $2, rpe = $3
-		WHERE id = $4
+		WHERE id = $4 AND user_id = $5
 		RETURNING *`,
-		e.Weight, e.Reps, e.RPE, id,
+		e.Weight, e.Reps, e.RPE, e.ID, userID,
 	).Scan(
 		&record.ID,
 		&record.Weight,
