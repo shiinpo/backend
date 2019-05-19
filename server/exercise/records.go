@@ -16,6 +16,7 @@ func GetUserRecords(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	records, err := models.GetAllRecords(db, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
 	json.NewEncoder(w).Encode(records)
@@ -28,6 +29,7 @@ func AddUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
 	record, err := models.CreateRecord(
@@ -44,6 +46,7 @@ func AddUserRecord(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
 		return
 	}
 

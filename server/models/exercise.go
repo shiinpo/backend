@@ -84,12 +84,12 @@ func CreateCategory(db *sql.DB, name string) (Category, error) {
 }
 
 // EditCategory edits category by ID
-func EditCategory(db *sql.DB, name string, id int) (Category, error) {
+func EditCategory(db *sql.DB, c Category) (Category, error) {
 	var category Category
 	err := db.QueryRow(`UPDATE category
-		SET name = $1
+		SET name = UPPER($1)
 		WHERE id = $2
-		RETURNING id, name`, name, id).Scan(&category.ID, &category.Name)
+		RETURNING id, name`, c.Name, c.ID).Scan(&category.ID, &category.Name)
 
 	if err != nil {
 		return category, err
@@ -171,7 +171,7 @@ func CreateExercise(db *sql.DB, name string, categoryID int) (Exercise, error) {
 func EditExercise(db *sql.DB, e Exercise) (Exercise, error) {
 	var exercise Exercise
 	err := db.QueryRow(`UPDATE exercise
-		SET name = $1, category_id = $2
+		SET name = UPPER($1), category_id = $2
 		WHERE id = $3
 		RETURNING id, name, category_id`, e.Name, e.CategoryID, e.ID).Scan(&exercise.ID, &exercise.Name, &exercise.CategoryID)
 
@@ -274,13 +274,13 @@ func CreateRecord(db *sql.DB, e Record) (Record, error) {
 }
 
 // EditRecord edits record by record ID
-func EditRecord(db *sql.DB, id int, e Record) (Record, error) {
+func EditRecord(db *sql.DB, userID int, e Record) (Record, error) {
 	var record Record
 	err := db.QueryRow(`UPDATE user_records
 		SET weight = $1, reps = $2, rpe = $3
-		WHERE id = $4
+		WHERE id = $4 AND user_id = $5
 		RETURNING *`,
-		e.Weight, e.Reps, e.RPE, id,
+		e.Weight, e.Reps, e.RPE, e.ID, userID,
 	).Scan(
 		&record.ID,
 		&record.Weight,
