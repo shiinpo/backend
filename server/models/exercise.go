@@ -21,6 +21,7 @@ type Record struct {
 	Weight        int    `json:"weight"`
 	Reps          int    `json:"reps"`
 	RPE           int    `json:"rpe"`
+	Max           int    `json:"max"`
 	DatePerformed string `json:"date_performed"`
 	ExerciseID    int    `json:"exercise_id"`
 	UserID        int    `json:"user_id"`
@@ -235,6 +236,7 @@ func GetRecord(db *sql.DB, id int) (Record, error) {
 		&record.Weight,
 		&record.Reps,
 		&record.RPE,
+		&record.Max,
 		&record.DatePerformed,
 		&record.ExerciseID,
 		&record.UserID,
@@ -250,17 +252,19 @@ func GetRecord(db *sql.DB, id int) (Record, error) {
 // CreateRecord creates new record
 func CreateRecord(db *sql.DB, e Record) (Record, error) {
 	var record Record
+	max := CalculateORM(e.Weight, e.Reps, e.RPE)
 	err := db.QueryRow(`
-		INSERT INTO user_records(weight, reps, rpe, date_performed, exercise_id, user_id)
+		INSERT INTO user_records(weight, reps, rpe, max, date_performed, exercise_id, user_id)
 		VALUES
-		($1, $2, $3, $4, $5, $6)
+		($1, $2, $3, $4, $5, $6, $7)
 		RETURNING *`,
-		e.Weight, e.Reps, e.RPE, e.DatePerformed, e.ExerciseID, e.UserID,
+		e.Weight, e.Reps, e.RPE, max, e.DatePerformed, e.ExerciseID, e.UserID,
 	).Scan(
 		&record.ID,
 		&record.Weight,
 		&record.Reps,
 		&record.RPE,
+		&record.Max,
 		&record.DatePerformed,
 		&record.ExerciseID,
 		&record.UserID,
@@ -276,16 +280,18 @@ func CreateRecord(db *sql.DB, e Record) (Record, error) {
 // EditRecord edits record by record ID
 func EditRecord(db *sql.DB, userID int, e Record) (Record, error) {
 	var record Record
+	max := CalculateORM(e.Weight, e.Reps, e.RPE)
 	err := db.QueryRow(`UPDATE user_records
-		SET weight = $1, reps = $2, rpe = $3
-		WHERE id = $4 AND user_id = $5
+		SET weight = $1, reps = $2, rpe = $3, max = $4
+		WHERE id = $5 AND user_id = $6
 		RETURNING *`,
-		e.Weight, e.Reps, e.RPE, e.ID, userID,
+		e.Weight, e.Reps, e.RPE, max, e.ID, userID,
 	).Scan(
 		&record.ID,
 		&record.Weight,
 		&record.Reps,
 		&record.RPE,
+		&record.Max,
 		&record.DatePerformed,
 		&record.ExerciseID,
 		&record.UserID,
@@ -309,4 +315,12 @@ func DeleteRecord(db *sql.DB, userID int, id int) (int, error) {
 		count++
 	}
 	return count, nil
+}
+
+// CalculateORM calculates ORM
+func CalculateORM(weight int, reps int, rpe int) int {
+	addReps := 10 - rpe
+	reps = reps + addReps
+	max := int(weight * (1 + (reps / 30)))
+	return max
 }
