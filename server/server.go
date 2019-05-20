@@ -81,7 +81,8 @@ func (s *Server) Run() {
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"}, // All origins
+		AllowedOrigins: []string{"*"},                                               // All origins
+		AllowedHeaders: []string{"Authorization", "Content-Type"},                   // All headers
 		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}, // Allowing only get, just an example
 	})
 
