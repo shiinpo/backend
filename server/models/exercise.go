@@ -215,6 +215,7 @@ func GetAllRecords(db *sql.DB, id int) ([]Record, error) {
 			&record.Weight,
 			&record.Reps,
 			&record.RPE,
+			&record.Max,
 			&record.DatePerformed,
 			&record.ExerciseID,
 			&record.UserID,
