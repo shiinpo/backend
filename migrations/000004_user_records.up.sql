@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS user_records (
   weight            INTEGER         NOT NULL,
   reps              INTEGER         NOT NULL,
   rpe               INTEGER         NOT NULL,
+  max               INTEGER         NOT NULL,
   date_performed    DATE            NOT NULL,
   exercise_id       INTEGER         REFERENCES exercise(id) ON DELETE CASCADE ON UPDATE CASCADE,
   user_id           INTEGER         REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
