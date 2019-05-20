@@ -8,9 +8,9 @@ import (
 	"os"
 
 	"github.com/go-redis/redis"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/reynld/shinpo/server/auth"
+	"github.com/rs/cors"
 )
 
 // Server has db, router and cache instances
@@ -80,6 +80,12 @@ func (s *Server) connectDB() {
 func (s *Server) Run() {
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},                                               // All origins
+		AllowedHeaders: []string{"Authorization", "Content-Type"},                   // All headers
+		AllowedMethods: []string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}, // Allowing only get, just an example
+	})
+
 	fmt.Printf("server live on port%s\n", port)
-	log.Fatal(http.ListenAndServe(port, handlers.CORS()(s.Router)))
+	log.Fatal(http.ListenAndServe(port, c.Handler(s.Router)))
 }

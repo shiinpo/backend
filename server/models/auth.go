@@ -11,6 +11,7 @@ import (
 type Credentials struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 // User response from database
@@ -21,11 +22,19 @@ type User struct {
 	Email    string `json:"email"`
 }
 
+// UserResponse for login
+type UserResponse struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 // Claims a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type Claims struct {
 	Username string `json:"username"`
 	ID       int    `json:"id"`
+	Email    string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -36,24 +45,26 @@ type JWTResponse struct {
 }
 
 // GetByUsername gets User by username
-func GetByUsername(db *sql.DB, user *User, username string) error {
+func GetByUsername(db *sql.DB, username string) (User, error) {
+	var user User
 	err := db.QueryRow(
-		`SELECT u.id, u.username, u.password FROM users u WHERE username = $1`,
-		username).Scan(&user.ID, &user.Username, &user.Password)
+		`SELECT u.id, u.username, u.password, u.email FROM users u WHERE username = $1`,
+		username).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
 	if err != nil {
-		return err
+		return user, err
 	}
-	return nil
+	return user, nil
 }
 
 // CreateUser returns User by username
-func CreateUser(db *sql.DB, id *int, username string, password string) error {
-	err := db.QueryRow(`INSERT INTO users(username, password)
+func CreateUser(db *sql.DB, username string, hash string, email string) (UserResponse, error) {
+	var user UserResponse
+	err := db.QueryRow(`INSERT INTO users(username, password, email)
 		VALUES
-		($1, $2)
-		RETURNING id`, username, password).Scan(id)
+		($1, $2, $3)
+		RETURNING id, username, email`, username, hash, email).Scan(&user.ID, &user.Username, &user.Email)
 	if err != nil {
-		return err
+		return user, err
 	}
-	return nil
+	return user, nil
 }

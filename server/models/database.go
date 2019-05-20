@@ -77,8 +77,7 @@ func userSeeds(db *sql.DB) {
 		log.Fatal("error hasing seed password")
 	}
 
-	var id int
-	err = CreateUser(db, &id, "rey", string(hash))
+	_, err = CreateUser(db, "rey", string(hash), "email@rey.sh")
 	if err != nil {
 		log.Fatal("error seeding user:" + err.Error())
 	}

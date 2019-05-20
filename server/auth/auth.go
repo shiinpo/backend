@@ -19,20 +19,26 @@ func getJWTKey() []byte {
 func Protected(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// We can obtain the session token from the requests cookies, which come with every request
-		c, err := r.Cookie("token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				// If the cookie is not set, return an unauthorized status
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			// For any other type of error, return a bad request status
-			w.WriteHeader(http.StatusBadRequest)
+		// c, err := r.Cookie("token")
+		// if err != nil {
+		// 	if err == http.ErrNoCookie {
+		// 		// If the cookie is not set, return an unauthorized status
+		// 		w.WriteHeader(http.StatusUnauthorized)
+		// 		return
+		// 	}
+		// 	// For any other type of error, return a bad request status
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	return
+		// }
+
+		// // Get the JWT string from the cookie
+		// tknStr := c.Value
+
+		tknStr := r.Header.Get("Authorization")
+		if len(tknStr) <= 0 {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-
-		// Get the JWT string from the cookie
-		tknStr := c.Value
 
 		// Initialize a new instance of `Claims`
 		claims := &models.Claims{}
@@ -68,14 +74,15 @@ func Protected(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // GenerateToken creates JWT
-func GenerateToken(username string, id int) (models.JWTResponse, error) {
+func GenerateToken(u *models.UserResponse) (models.JWTResponse, error) {
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().Add(5 * time.Hour)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &models.Claims{
-		Username: username,
-		ID:       id,
+		Username: u.Username,
+		ID:       u.ID,
+		Email:    u.Email,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
