@@ -52,12 +52,12 @@ func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	// Finally, we set the client cookie for "token" as the JWT we just generated
 	// we also set an expiry time which is the same as the token itself
-	http.SetCookie(w, &http.Cookie{
-		Name:    "token",
-		Value:   jwtToken.Token,
-		Expires: jwtToken.Time,
-	})
-	json.NewEncoder(w).Encode(userRes)
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:    "token",
+	// 	Value:   jwtToken.Token,
+	// 	Expires: jwtToken.Time,
+	// })
+	json.NewEncoder(w).Encode(map[string]string{"token": jwtToken.Token, "expires": jwtToken.Time.String()})
 }
 
 // Register the Signin handler
@@ -96,10 +96,10 @@ func Register(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 
 	// Finally, we set the client cookie for "token" as the JWT we just generated
 	// we also set an expiry time which is the same as the token itself
-	http.SetCookie(w, &http.Cookie{
-		Name:    "token",
-		Value:   jwtToken.Token,
-		Expires: jwtToken.Time,
-	})
-	json.NewEncoder(w).Encode(user)
+	// http.SetCookie(w, &http.Cookie{
+	// 	Name:    "token",
+	// 	Value:   jwtToken.Token,
+	// 	Expires: jwtToken.Time,
+	// })
+	json.NewEncoder(w).Encode(map[string]string{"token": jwtToken.Token, "expires": jwtToken.Time.String()})
 }

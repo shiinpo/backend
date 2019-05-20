@@ -19,20 +19,26 @@ func getJWTKey() []byte {
 func Protected(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// We can obtain the session token from the requests cookies, which come with every request
-		c, err := r.Cookie("token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				// If the cookie is not set, return an unauthorized status
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			// For any other type of error, return a bad request status
-			w.WriteHeader(http.StatusBadRequest)
+		// c, err := r.Cookie("token")
+		// if err != nil {
+		// 	if err == http.ErrNoCookie {
+		// 		// If the cookie is not set, return an unauthorized status
+		// 		w.WriteHeader(http.StatusUnauthorized)
+		// 		return
+		// 	}
+		// 	// For any other type of error, return a bad request status
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	return
+		// }
+
+		// // Get the JWT string from the cookie
+		// tknStr := c.Value
+
+		tknStr := r.Header.Get("Authorization")
+		if len(tknStr) <= 0 {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-
-		// Get the JWT string from the cookie
-		tknStr := c.Value
 
 		// Initialize a new instance of `Claims`
 		claims := &models.Claims{}
