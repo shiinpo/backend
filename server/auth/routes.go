@@ -58,7 +58,6 @@ func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-
 	userRes.Token = jwtToken.Token
 
 	json.NewEncoder(w).Encode(userRes)
@@ -113,6 +112,29 @@ func Register(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 
 	userRes.Token = jwtToken.Token
+
+	json.NewEncoder(w).Encode(userRes)
+}
+
+// UserInfo gets user info with valid token
+func UserInfo(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+	id := r.Context().Value("ID").(int)
+	var userRes models.InitialUserResponse
+	var err error
+	userRes.User, err = models.GetUserByID(db, id)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	userRes, err = models.GetInitialUserResponse(db, userRes.User)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	userRes.Token = r.Header.Get("Authorization")
 
 	json.NewEncoder(w).Encode(userRes)
 }

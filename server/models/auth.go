@@ -58,6 +58,18 @@ func GetByUsername(db *sql.DB, username string) (User, string, error) {
 	return user, password, nil
 }
 
+// GetUserByID gets User by ID
+func GetUserByID(db *sql.DB, id int) (User, error) {
+	var user User
+	err := db.QueryRow(
+		`SELECT u.id, u.username, u.email FROM users u WHERE id = $1`,
+		id).Scan(&user.ID, &user.Username, &user.Email)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 // CreateUser returns User by username
 func CreateUser(db *sql.DB, username string, hash string, email string) (User, error) {
 	var user User
