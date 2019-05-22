@@ -74,7 +74,7 @@ func Protected(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // GenerateToken creates JWT
-func GenerateToken(u *models.UserResponse) (models.JWTResponse, error) {
+func GenerateToken(u *models.User) (models.JWTResponse, error) {
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().Add(5 * time.Hour)

@@ -18,14 +18,6 @@ type Credentials struct {
 type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
-}
-
-// UserResponse for login
-type UserResponse struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
 	Email    string `json:"email"`
 }
 
@@ -44,21 +36,31 @@ type JWTResponse struct {
 	Time  time.Time
 }
 
+// InitialUserResponse struct
+type InitialUserResponse struct {
+	User       User       `json:"user"`
+	Records    []Record   `json:"records"`
+	Categories []Category `json:"categories"`
+	Exercises  []Exercise `json:"exercises"`
+	Token      string     `json:"token"`
+}
+
 // GetByUsername gets User by username
-func GetByUsername(db *sql.DB, username string) (User, error) {
+func GetByUsername(db *sql.DB, username string) (User, string, error) {
 	var user User
+	var password string
 	err := db.QueryRow(
 		`SELECT u.id, u.username, u.password, u.email FROM users u WHERE username = $1`,
-		username).Scan(&user.ID, &user.Username, &user.Password, &user.Email)
+		username).Scan(&user.ID, &user.Username, &password, &user.Email)
 	if err != nil {
-		return user, err
+		return user, password, err
 	}
-	return user, nil
+	return user, password, nil
 }
 
 // CreateUser returns User by username
-func CreateUser(db *sql.DB, username string, hash string, email string) (UserResponse, error) {
-	var user UserResponse
+func CreateUser(db *sql.DB, username string, hash string, email string) (User, error) {
+	var user User
 	err := db.QueryRow(`INSERT INTO users(username, password, email)
 		VALUES
 		($1, $2, $3)
@@ -67,4 +69,29 @@ func CreateUser(db *sql.DB, username string, hash string, email string) (UserRes
 		return user, err
 	}
 	return user, nil
+}
+
+// GetInitialUserResponse initial user Response
+func GetInitialUserResponse(db *sql.DB, user User) (InitialUserResponse, error) {
+	var userRes InitialUserResponse
+	var err error
+
+	userRes.User = user
+
+	userRes.Categories, err = GetAllCategories(db)
+	if err != nil {
+		return userRes, err
+	}
+
+	userRes.Exercises, err = GetAllExercises(db)
+	if err != nil {
+		return userRes, err
+	}
+
+	userRes.Records, err = GetAllRecords(db, userRes.User.ID)
+	if err != nil {
+		return userRes, err
+	}
+
+	return userRes, err
 }

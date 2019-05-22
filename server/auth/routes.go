@@ -22,27 +22,21 @@ func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := models.GetByUsername(db, creds.Username)
+	user, password, err := models.GetByUsername(db, creds.Username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(creds.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password))
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(err.Error()))
 		return
 	}
 
-	userRes := models.UserResponse{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-	}
-
-	jwtToken, err := GenerateToken(&userRes)
+	jwtToken, err := GenerateToken(&user)
 	if err != nil {
 		// If there is an error in creating the JWT return an internal server error
 		w.WriteHeader(http.StatusInternalServerError)
@@ -57,7 +51,17 @@ func Login(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// 	Value:   jwtToken.Token,
 	// 	Expires: jwtToken.Time,
 	// })
-	json.NewEncoder(w).Encode(map[string]string{"token": jwtToken.Token, "expires": jwtToken.Time.String()})
+
+	userRes, err := models.GetInitialUserResponse(db, user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	userRes.Token = jwtToken.Token
+
+	json.NewEncoder(w).Encode(userRes)
 }
 
 // Register the Signin handler
@@ -101,5 +105,14 @@ func Register(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	// 	Value:   jwtToken.Token,
 	// 	Expires: jwtToken.Time,
 	// })
-	json.NewEncoder(w).Encode(map[string]string{"token": jwtToken.Token, "expires": jwtToken.Time.String()})
+	userRes, err := models.GetInitialUserResponse(db, user)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	userRes.Token = jwtToken.Token
+
+	json.NewEncoder(w).Encode(userRes)
 }
