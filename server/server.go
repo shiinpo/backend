@@ -35,6 +35,7 @@ func (s *Server) setRouter() {
 	s.Router.HandleFunc("/", s.getServerIsUp).Methods("GET")
 	s.Router.HandleFunc("/login", s.Login).Methods("POST")
 	s.Router.HandleFunc("/register", s.Register).Methods("POST")
+	s.Router.HandleFunc("/user", auth.Protected(s.GetUserInfo)).Methods("GET")
 
 	// User Record Endpoints
 	s.Router.HandleFunc("/record/all", auth.Protected(s.GetUserRecords)).Methods("GET")

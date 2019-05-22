@@ -38,6 +38,11 @@ func (s *Server) Register(w http.ResponseWriter, r *http.Request) {
 	auth.Register(s.DB, w, r)
 }
 
+// GetUserInfo route wrapper
+func (s *Server) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	auth.UserInfo(s.DB, w, r)
+}
+
 //////////////////
 ////  RECORD  ////
 //////////////////
